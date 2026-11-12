@@ -24,6 +24,27 @@ jobs:
           mkdir -v -p ~/.config/godot/
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
 
+      - name: Konfigurasi Android (keystore dan path SDK)
+        run: |
+          JAVA_DIR="${JAVA_HOME:-$(dirname $(dirname $(readlink -f $(which java))))}"
+          SDK_DIR="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/lib/android-sdk}}"
+          echo "JAVA: $JAVA_DIR"
+          echo "SDK: $SDK_DIR"
+          if [ ! -f /root/debug.keystore ]; then
+            keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore /root/debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
+          fi
+          cat > ~/.config/godot/editor_settings-4.4.tres << EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/java_sdk_path = "$JAVA_DIR"
+          export/android/android_sdk_path = "$SDK_DIR"
+          export/android/debug_keystore = "/root/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOF
+          cat ~/.config/godot/editor_settings-4.4.tres
+
       - name: Build APK
         run: |
           mkdir -v -p build/android
