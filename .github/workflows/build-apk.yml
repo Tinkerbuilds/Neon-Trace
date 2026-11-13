@@ -21,7 +21,8 @@ jobs:
       - name: Setup template Godot
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates/
-          mkdir -v -p ~/.config/godot/
+          mkdir -v -p ~/.config/
+          if [ -d /root/.config/godot ]; then mv /root/.config/godot ~/.config/godot; else mkdir -v -p ~/.config/godot; fi
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
 
       - name: Konfigurasi Android (keystore dan path SDK)
@@ -43,6 +44,7 @@ jobs:
           export/android/debug_keystore_user = "androiddebugkey"
           export/android/debug_keystore_pass = "android"
           EOF
+          cp ~/.config/godot/editor_settings-4.4.tres ~/.config/godot/editor_settings-4.tres
           cat ~/.config/godot/editor_settings-4.4.tres
 
       - name: Build APK
