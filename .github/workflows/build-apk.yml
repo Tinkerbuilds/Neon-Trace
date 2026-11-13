@@ -50,7 +50,13 @@ jobs:
       - name: Build APK
         run: |
           mkdir -v -p build/android
-          godot --headless --verbose --export-debug "Android Debug" build/android/NeonTrace-debug.apk
+          set +e
+          godot --headless --verbose --export-debug "Android Debug" build/android/NeonTrace-debug.apk > build.log 2>&1
+          STATUS=$?
+          echo "===== RINGKASAN ERROR ====="
+          grep -n -A4 "ERROR:" build.log | tail -40
+          echo "===== SELESAI, kode keluar: $STATUS ====="
+          exit $STATUS
 
       - name: Unggah APK
         uses: actions/upload-artifact@v4
